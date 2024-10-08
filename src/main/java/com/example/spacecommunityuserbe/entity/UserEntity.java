@@ -9,20 +9,21 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "SPACE_USER")
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long USER_ID;
+    private Integer id;
 
     @Column(nullable = false)
-    private String USER_NAME;
+    private String name;
 
     @Column(nullable = false)
-    private String USER_PASSWORD;
+    private String password;
 
     @Column(nullable = false)
-    private Long USER_AGE;
+    private Integer age;
 
     @Column
-    private String USER_PROFILE;
+    private String profile;
 }

@@ -2,9 +2,11 @@ package com.example.spacecommunityuserbe.repository;
 
 import com.example.spacecommunityuserbe.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    Optional<UserEntity> findByUSER_NAME(String username);
+    Optional<UserEntity> findByName(String username);
 }
