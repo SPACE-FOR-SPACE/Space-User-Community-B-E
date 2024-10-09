@@ -27,7 +27,6 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletRequest httpServletRequest) {
         if (!userService.userAuthenticate(userDTO)) return ResponseEntity.status(401).body("User Data does not match");
         HttpSession session = httpServletRequest.getSession();
-        session.setMaxInactiveInterval(3000);
         sessionService.saveSession(session.getId(), userDTO.getName());
         return ResponseEntity.status(200).body("User logged in");
     }

@@ -4,6 +4,7 @@ import com.example.spacecommunityuserbe.dto.UserDTO;
 import com.example.spacecommunityuserbe.entity.UserEntity;
 import com.example.spacecommunityuserbe.mapper.UserMapper;
 import com.example.spacecommunityuserbe.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class UserService {
         return userEntityOptional.filter(userEntity -> passwordEncoder.matches(userDTO.getPassword(), userEntity.getPassword())).isPresent();
     }
 
+    @Transactional
     public void createUser(UserDTO userDTO) {
         if(isUserVerify(userDTO.getName())) return; // Exception
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -39,6 +41,7 @@ public class UserService {
         userMapper.toUserDTO(userRepository.save(userEntity));
     }
 
+    @Transactional
     public void deleteUser(UserDTO userDTO) {
         if(!userAuthenticate(userDTO)) return; // Exception
         userRepository.delete(userMapper.toUserEntity(userDTO));
