@@ -27,14 +27,18 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO, HttpServletRequest httpServletRequest) {
         if (!userService.userAuthenticate(userDTO)) return ResponseEntity.status(401).body("User Data does not match");
         HttpSession session = httpServletRequest.getSession();
-        sessionService.saveSession(session.getId(), userDTO.getName());
+        sessionService.saveSession(userDTO.getName(), session.getId());
         return ResponseEntity.status(200).body("User logged in");
     }
 
-//
-//    @GetMapping(value = "/logout")
-//
-//    @GetMapping(value = "/profile/{user}")
+    @GetMapping(value = "/logout")
+    public ResponseEntity<?> logout(HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession();
+        sessionService.deleteSession(session.getId());
+        return ResponseEntity.status(200).body("User logged out");
+    }
+
+    //@GetMapping(value = "/profile/{user}")
 
 
 }

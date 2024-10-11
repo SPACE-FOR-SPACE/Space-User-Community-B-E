@@ -7,13 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
-    private Integer id;
-    private String name;
-    private String password;
-    private Integer age;
-    private String profile;
-
+@NoArgsConstructor
+public class ErrorDTO {
+    private int errorCode;
+    private String errorMessage;
 }
