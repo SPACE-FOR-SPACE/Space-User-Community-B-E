@@ -1,0 +1,38 @@
+spring:
+  application:
+    name:
+      SpaceCommunityBackendJWTOAuth
+  jpa:
+    properties:
+      hibernate:
+        show_sql:
+          true
+        ddl-auto:
+          update
+  jwt:
+    access:
+      expiration:
+        54000
+    refresh:
+      expiration:
+        1209600
+    secret:
+      secretkey
+  datasource:
+    driver-class-name:
+      com.mysql.cj.jdbc.Driver
+    url:
+      jdbc
+    username:
+      halo
+    password:
+      halo
+  data:
+    redis:
+      host:
+        host?
+      port:
+        1111
+
+debug:
+  true
