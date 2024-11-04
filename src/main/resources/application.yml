@@ -12,25 +12,25 @@ spring:
   jwt:
     access:
       expiration:
-        54000
+        0
     refresh:
       expiration:
-        1209600
+        0
     secret:
-      secretkey
+      afsdjn
   datasource:
     driver-class-name:
-      com.mysql.cj.jdbc.Driver
+      aldm
     url:
-      jdbc
+      dkmad
     username:
-      halo
+      niga
     password:
-      halo
+      mm
   data:
     redis:
       host:
-        host?
+        halo
       port:
         1111
 

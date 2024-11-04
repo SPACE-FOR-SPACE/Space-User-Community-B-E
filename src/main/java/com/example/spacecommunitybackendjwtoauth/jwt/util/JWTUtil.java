@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +33,8 @@ public class JWTUtil {
     @Value("${spring.jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-    public Long getUserId(String token) {
-        return Long.valueOf(Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId", String.class));
+    public String getEmail(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
     public String getCategory(String token) {
@@ -49,27 +50,31 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createAccessToken(Long id, Role role) {
-        return createJWT("access", id, role, accessTokenExpiration);
+    public String createAccessToken(String email, Role role) {
+        return createJWT("access", email, role, accessTokenExpiration);
     }
 
-    public String createRefreshToken(Long id, Role role) {
-        return createJWT("refresh", id, role, refreshTokenExpiration);
+    public String createRefreshToken(String email, Role role) {
+        return createJWT("refresh", email, role, refreshTokenExpiration);
     }
 
-    public ResponseCookie createRefreshTokenCookie(String key, String email, String refreshToken, Role role) {
+    public ResponseCookie invalidRefreshCookie(String category) {
+        return createCookie(category, "", 0);
+    }
+
+    public ResponseCookie createRefreshTokenCookie(String email, String refreshToken, Role role) {
         JWTUserDTO jwtUserDTO = JWTUserDTO.builder()
                 .email(email)
                 .refreshToken(refreshToken)
-                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .role(role.toString())
                 .build();
         refreshTokenRepository.save(jwtUserDTO);
-        return createCookie(key, refreshToken, (int) refreshTokenExpiration);
+        return createCookie("refreshToken", refreshToken, (int) refreshTokenExpiration);
     }
 
     public String getAccessTokenFromHeaders(HttpServletRequest request) {
-        if(request.getHeader("Authorization") != null) {
+        System.out.println(request.getHeader(HttpHeaders.AUTHORIZATION));
+        if(request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
             return request.getHeader("Authorization");
         }
         return null;
@@ -86,9 +91,9 @@ public class JWTUtil {
         return null;
     }
 
-    private String createJWT(String category, Long userId, Role role, Long expiredMs) {
+    private String createJWT(String category, String email, Role role, Long expiredMs) {
         return Jwts.builder()
-                .claim("userId", String.valueOf(userId))
+                .claim("email", email)
                 .claim("role", role.getValue())
                 .claim("category", category)
                 .issuedAt(new Date(System.currentTimeMillis()))

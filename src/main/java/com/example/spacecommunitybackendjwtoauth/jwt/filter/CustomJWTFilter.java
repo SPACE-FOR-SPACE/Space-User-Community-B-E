@@ -1,5 +1,6 @@
 package com.example.spacecommunitybackendjwtoauth.jwt.filter;
 
+import com.example.spacecommunitybackendjwtoauth.jwt.exception.DuplicateLoginException;
 import com.example.spacecommunitybackendjwtoauth.jwt.exception.InvalidTokenException;
 import com.example.spacecommunitybackendjwtoauth.jwt.util.JWTUtil;
 import com.example.spacecommunitybackendjwtoauth.user.Role;
@@ -30,6 +31,9 @@ public class CustomJWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse res, @NonNull FilterChain chain) throws ServletException, IOException {
         String requestURI = req.getRequestURI();
         if(requestURI.equals("/user/login")) {
+            if(jwtUtil.getAccessTokenFromHeaders(req) != null) {
+                throw new DuplicateLoginException();
+            }
             chain.doFilter(req, res);
             return;
         }
@@ -52,12 +56,12 @@ public class CustomJWTFilter extends OncePerRequestFilter {
             throw new InvalidTokenException();
         }
 
-        Long id = jwtUtil.getUserId(accessToken);
+        String email = jwtUtil.getEmail(accessToken);
         Role role = jwtUtil.getRole(accessToken);
 
         GrantedAuthority authority = new SimpleGrantedAuthority(role.getValue());
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(id, null, Collections.singletonList(authority));
+        Authentication authToken = new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(authority));
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

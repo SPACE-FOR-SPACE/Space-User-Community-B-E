@@ -1,10 +1,12 @@
 package com.example.spacecommunitybackendjwtoauth.config;
 
+import com.example.spacecommunitybackendjwtoauth.auth.presentation.repository.RefreshTokenRepository;
 import com.example.spacecommunitybackendjwtoauth.auth.service.CustomUserDetailsService;
 import com.example.spacecommunitybackendjwtoauth.exception.filter.SpaceSecurityExceptionFilter;
 import com.example.spacecommunitybackendjwtoauth.jwt.filter.CustomAuthenticationProvider;
 import com.example.spacecommunitybackendjwtoauth.jwt.filter.CustomJWTFilter;
-import com.example.spacecommunitybackendjwtoauth.jwt.filter.LoginFilter;
+import com.example.spacecommunitybackendjwtoauth.jwt.filter.CustomLoginFilter;
+import com.example.spacecommunitybackendjwtoauth.jwt.filter.CustomLogoutFilter;
 import com.example.spacecommunitybackendjwtoauth.jwt.util.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
@@ -34,6 +37,7 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final List<String> excludedPaths = Arrays.asList("/swagger-ui/**", "/v3//api-docs/**", "/reissue");
 
     @Bean
@@ -75,7 +79,8 @@ public class SecurityConfig {
                 )
                 .addFilterAfter(new SpaceSecurityExceptionFilter(objectMapper), CorsFilter.class)
                 .addFilterAfter(new CustomJWTFilter(jwtUtil, excludedPaths), CorsFilter.class)
-                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, objectMapper, "/user/login"), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new CustomLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, objectMapper, "/user/login"), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }

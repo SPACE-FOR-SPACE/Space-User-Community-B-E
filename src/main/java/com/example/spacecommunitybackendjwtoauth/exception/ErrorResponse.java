@@ -8,14 +8,6 @@ public record ErrorResponse(
         String message,
         LocalDateTime timestamp
 ) {
-    public static ErrorResponse from(ErrorCode errorCode) {
-        return new ErrorResponse(
-                errorCode.getStatus().value(),
-                errorCode.name(),
-                errorCode.getMessage(),
-                LocalDateTime.now()
-        );
-    }
 
     public static ErrorResponse from(int httpStatus, String errorCode, String message) {
         return new ErrorResponse(

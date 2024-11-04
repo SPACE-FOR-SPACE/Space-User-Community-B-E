@@ -2,9 +2,9 @@ package com.example.spacecommunitybackendjwtoauth.jwt.filter;
 
 import com.example.spacecommunitybackendjwtoauth.auth.service.dto.CustomUserDetails;
 import com.example.spacecommunitybackendjwtoauth.auth.service.CustomUserDetailsService;
+import com.example.spacecommunitybackendjwtoauth.user.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -25,7 +25,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(email);
 
         if(!passwordEncoder.matches(password, customUserDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid email or password");
+            throw new UserNotFoundException();
         }
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, password, customUserDetails.getAuthorities());

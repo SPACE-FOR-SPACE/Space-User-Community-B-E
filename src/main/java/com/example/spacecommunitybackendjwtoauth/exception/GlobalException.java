@@ -1,6 +1,7 @@
 package com.example.spacecommunitybackendjwtoauth.exception;
 
 import com.example.spacecommunitybackendjwtoauth.exception.filter.SpaceCommunityAuthException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,9 +13,8 @@ public class GlobalException {
 
     @ExceptionHandler(SpaceCommunityRunTimeException.class)
     public ResponseEntity<ErrorResponse> handleApplicationException(SpaceCommunityRunTimeException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        ErrorResponse response = ErrorResponse.from(errorCode);
-        return ResponseEntity.status(errorCode.getStatus()).body(response);
+        ErrorResponse response = ErrorResponse.from(e.getStatus().value(), e.getStatus().toString(), e.getMessage());
+        return ResponseEntity.status(e.getStatus()).body(response);
     }
 
     @ExceptionHandler(SpaceCommunityAuthException.class)

@@ -15,7 +15,6 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
-    // role의 GrandAuthority
     private GrantedAuthority getGrandAuthority(Role role) {
         return new SimpleGrantedAuthority("ROLE_" + role.name());
     }
@@ -60,8 +59,6 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getEmail() { return user.getEmail(); }
-
-    public Long getId() { return user.getId(); }
 
     public Role getRole() { return user.getRole(); }
 }
