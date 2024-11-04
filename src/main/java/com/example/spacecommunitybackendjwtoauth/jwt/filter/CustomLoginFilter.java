@@ -17,12 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 
-public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final ObjectMapper objectMapper;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, ObjectMapper objectMapper, String loginURL) {
+    public CustomLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, ObjectMapper objectMapper, String loginURL) {
         super.setFilterProcessesUrl(loginURL);
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -50,15 +50,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
         CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
 
-        Long id = customUserDetails.getId();
-        Role role = customUserDetails.getRole();
         String email = customUserDetails.getEmail();
+        Role role = customUserDetails.getRole();
 
-        String accessToken = jwtUtil.createAccessToken(id, role);
-        String refreshToken = jwtUtil.createRefreshToken(id, role);
+        String accessToken = jwtUtil.createAccessToken(email, role);
+        String refreshToken = jwtUtil.createRefreshToken(email, role);
 
         res.addHeader("Authorization", "Bearer " + accessToken);
-        res.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshTokenCookie("refreshToken", email, refreshToken, role).toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshTokenCookie(email, refreshToken, role).toString());
         res.setStatus(200);
     }
 
