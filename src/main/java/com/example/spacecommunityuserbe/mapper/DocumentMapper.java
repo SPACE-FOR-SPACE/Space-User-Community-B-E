@@ -8,26 +8,25 @@ import org.springframework.stereotype.Component;
 public class DocumentMapper {
   public DocumentEntity toDocumentEntity(DocumentDTO documentDTO) {
     return new DocumentEntity(
-            documentDTO.getId(),
-            documentDTO.getUserId(),
-            documentDTO.getTitle(),
-            documentDTO.getContent(),
-            documentDTO.getIcon(),
-            documentDTO.getCategory(),
-            documentDTO.getLikes(),
-            documentDTO.getCreatedAt()
+            documentDTO.id(),
+            documentDTO.userId(),
+            documentDTO.title(),
+            documentDTO.content(),
+            documentDTO.icon(),
+            documentDTO.category(),
+            documentDTO.likes(),
+            documentDTO.createdAt()
     );
   }
   public DocumentDTO toDocumentDTO(DocumentEntity documentEntity) {
-    return DocumentDTO.builder()
-            .id(documentEntity.getId())
-            .title(documentEntity.getTitle())
-            .content(documentEntity.getContent())
-            .icon(documentEntity.getIcon())
-            .category(documentEntity.getCategory())
-            .likes(documentEntity.getLikes())
-            .createdAt(documentEntity.getCreatedAt())
-            .userId(documentEntity.getUserId())
-            .build();
-  }
+    return new DocumentDTO(
+            documentEntity.getId(),
+            documentEntity.getUserId(),
+            documentEntity.getTitle(),
+            documentEntity.getContent(),
+            documentEntity.getIcon(),
+            documentEntity.getCategory(),
+            documentEntity.getLikes(),
+            documentEntity.getCreatedAt());
+      }
 }
