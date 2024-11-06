@@ -3,7 +3,6 @@ package com.example.spacecommunityuserbe.service;
 import com.example.spacecommunityuserbe.controller.BaseApiResponse;
 import com.example.spacecommunityuserbe.dto.DocumentDTO;
 import com.example.spacecommunityuserbe.dto.LikesDocumentDTO;
-import com.example.spacecommunityuserbe.entity.DocumentEntity;
 import com.example.spacecommunityuserbe.mapper.DocumentMapper;
 import com.example.spacecommunityuserbe.mapper.LikesDocumentMapper;
 import com.example.spacecommunityuserbe.repository.DocumentRepository;
@@ -30,8 +29,7 @@ public class DocumentService {
   @Transactional
   public BaseApiResponse createDocument(DocumentDTO documentDTO) {
     try {
-      DocumentEntity documentEntity = documentMapper.toDocumentEntity(documentDTO);
-      documentMapper.toDocumentDTO(documentRepository.save(documentEntity));
+      documentRepository.save(documentMapper.toDocumentEntity(documentDTO));
       return new BaseApiResponse(201, "Successfully created");
     } catch (Exception e) {
       return new BaseApiResponse(400, "Invalid input");
@@ -43,13 +41,16 @@ public class DocumentService {
   public BaseApiResponse readDocument(Long id) {
     try {
       DocumentDTO document = documentRepository.findDocumentDTOById(id);
+      if (document == null) {
+        return new BaseApiResponse(404, "Document not found");
+      }
       return new BaseApiResponse<>(200, "Successfully read", document);
     } catch (Exception e) {
-      return new BaseApiResponse(404, "Document not found");
+      return new BaseApiResponse(400, "Invalid input");
     }
   }
 
-  // Document Read
+  // Document Update
   @Transactional
   public BaseApiResponse updateDocument(Long id, DocumentDTO documentDTO) {
     try {

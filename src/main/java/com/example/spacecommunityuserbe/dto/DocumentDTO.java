@@ -2,7 +2,6 @@ package com.example.spacecommunityuserbe.dto;
 
 import com.example.spacecommunityuserbe.entity.DocumentIcon;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
 
 import java.time.LocalDateTime;
 
