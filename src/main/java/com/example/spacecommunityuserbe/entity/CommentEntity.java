@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "SPACE_COMMENTS")
-public class CommentsEntity {
+@Table(name = "SPACE_COMMENT")
+public class CommentEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

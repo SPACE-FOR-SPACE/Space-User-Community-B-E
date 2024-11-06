@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
-public record CommentsDTO(
+public record CommentDTO(
         @Schema(description = "댓글 아이디(자동생성)", example = "3")
         Long id,
 
