@@ -1,4 +1,4 @@
-package com.example.spacecommunitybackendjwtoauth.user.exceptions;
+package com.example.spacecommunitybackendjwtoauth.user.exception;
 
 import com.example.spacecommunitybackendjwtoauth.exception.SpaceCommunityRunTimeException;
 import org.springframework.http.HttpStatus;

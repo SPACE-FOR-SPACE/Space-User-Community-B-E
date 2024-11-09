@@ -2,7 +2,11 @@ package com.example.spacecommunitybackendjwtoauth.jwt.util;
 
 import com.example.spacecommunitybackendjwtoauth.auth.presentation.dto.JWTUserDTO;
 import com.example.spacecommunitybackendjwtoauth.auth.presentation.repository.RefreshTokenRepository;
+import com.example.spacecommunitybackendjwtoauth.jwt.exception.ExpiredRefreshTokenException;
+import com.example.spacecommunitybackendjwtoauth.jwt.exception.ExpiredTokenException;
 import com.example.spacecommunitybackendjwtoauth.user.Role;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +20,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
+// JWT Utility
 @Component
 public class JWTUtil {
 
@@ -37,8 +43,24 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
+    public Long getUserId(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId", Long.class);
+    }
+
     public String getCategory(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+
+    public boolean jwtVerify(String token, String type) {
+        try {
+            if(token == null) return false;
+            if(token.replaceFirst("Bearer ", "").equals("null")) return false;
+            String category = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+            return Objects.equals(category, type);
+        }
+        catch(JwtException e) {
+            return false;
+        }
     }
 
     public Role getRole(String token) {
@@ -46,24 +68,30 @@ public class JWTUtil {
         return Role.fromValue(roleValue);
     }
 
-    public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+    public void isExpired(String token) {
+        try {
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date(System.currentTimeMillis()));
+        }
+        catch(ExpiredJwtException e) {
+            throw new ExpiredTokenException();
+        }
     }
 
-    public String createAccessToken(String email, Role role) {
-        return createJWT("access", email, role, accessTokenExpiration);
+    public String createAccessToken(Long id, String email, Role role) {
+        return createJWT("access", id, email, role, accessTokenExpiration);
     }
 
-    public String createRefreshToken(String email, Role role) {
-        return createJWT("refresh", email, role, refreshTokenExpiration);
+    public String createRefreshToken(Long id, String email, Role role) {
+        return createJWT("refresh", id, email, role, refreshTokenExpiration);
     }
 
     public ResponseCookie invalidRefreshCookie(String category) {
         return createCookie(category, "", 0);
     }
 
-    public ResponseCookie createRefreshTokenCookie(String email, String refreshToken, Role role) {
+    public ResponseCookie createRefreshTokenCookie(String refreshToken, Long userId, String email, Role role) {
         JWTUserDTO jwtUserDTO = JWTUserDTO.builder()
+                .userId(userId)
                 .email(email)
                 .refreshToken(refreshToken)
                 .role(role.toString())
@@ -73,7 +101,6 @@ public class JWTUtil {
     }
 
     public String getAccessTokenFromHeaders(HttpServletRequest request) {
-        System.out.println(request.getHeader(HttpHeaders.AUTHORIZATION));
         if(request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
             return request.getHeader("Authorization");
         }
@@ -91,8 +118,9 @@ public class JWTUtil {
         return null;
     }
 
-    private String createJWT(String category, String email, Role role, Long expiredMs) {
+    private String createJWT(String category, Long userId, String email, Role role, Long expiredMs) {
         return Jwts.builder()
+                .claim("userId", userId)
                 .claim("email", email)
                 .claim("role", role.getValue())
                 .claim("category", category)
@@ -110,6 +138,13 @@ public class JWTUtil {
                 .secure(true)
                 .sameSite("None")
                 .build();
+    }
+
+    public void tokenVerify(String token, String type) {
+        if(token == null) throw new ExpiredRefreshTokenException();
+        String tokenType = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+        if(!Objects.equals(tokenType, type)) throw new ExpiredRefreshTokenException();
+        isExpired(token);
     }
 
 }

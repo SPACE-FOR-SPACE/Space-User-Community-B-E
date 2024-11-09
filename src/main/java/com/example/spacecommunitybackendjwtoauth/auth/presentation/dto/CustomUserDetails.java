@@ -1,4 +1,4 @@
-package com.example.spacecommunitybackendjwtoauth.auth.service.dto;
+package com.example.spacecommunitybackendjwtoauth.auth.presentation.dto;
 
 import com.example.spacecommunitybackendjwtoauth.user.Role;
 import com.example.spacecommunitybackendjwtoauth.user.User;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+// 회원 DTO
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
     private final User user;
@@ -36,6 +37,10 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
+    public Long getUserId() {
+        return user.getId();
+    }
+
     @Override
     public String getUsername() {
         return user.getUsername();
@@ -44,12 +49,6 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getPassword() {
         return user.getPassword();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        // 계정 만료
-        return true;
     }
 
     @Override

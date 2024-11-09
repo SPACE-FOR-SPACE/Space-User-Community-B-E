@@ -4,5 +4,6 @@ import com.example.spacecommunitybackendjwtoauth.auth.presentation.dto.JWTUserDT
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+// Redis RefreshToken Storage
 @Repository
 public interface RefreshTokenRepository extends CrudRepository<JWTUserDTO, String> { }

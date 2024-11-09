@@ -1,10 +1,8 @@
 package com.example.spacecommunitybackendjwtoauth.auth.service.implementation;
 
-import com.example.spacecommunitybackendjwtoauth.auth.presentation.dto.JWTUserDTO;
 import com.example.spacecommunitybackendjwtoauth.auth.presentation.repository.RefreshTokenRepository;
-import com.example.spacecommunitybackendjwtoauth.jwt.exception.ExpiredRefreshTokenException;
-import com.example.spacecommunitybackendjwtoauth.jwt.exception.InvalidTokenException;
 import com.example.spacecommunitybackendjwtoauth.jwt.exception.RefreshTokenNotFoundException;
+import com.example.spacecommunitybackendjwtoauth.jwt.exception.ServerTokenException;
 import com.example.spacecommunitybackendjwtoauth.jwt.util.JWTUtil;
 import com.example.spacecommunitybackendjwtoauth.user.Role;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+// 토큰 재발급 서비스
 @Service
 @RequiredArgsConstructor
 public class ReIssuer {
@@ -31,36 +30,23 @@ public class ReIssuer {
             throw new RefreshTokenNotFoundException();
         }
 
-        if(!jwtUtil.isExpired(refreshToken)) {
-            throw new ExpiredRefreshTokenException();
-        }
-
-        if(!jwtUtil.getCategory(refreshToken).equals("refresh")) {
-            throw new InvalidTokenException();
-        }
+        jwtUtil.tokenVerify(refreshToken, "refresh");
 
         if(!refreshTokenRepository.existsById(refreshToken)) {
-            throw new RefreshTokenNotFoundException();
+            throw new ServerTokenException();
         }
 
+        Long userId = jwtUtil.getUserId(refreshToken);
         String email = jwtUtil.getEmail(refreshToken);
         Role role = jwtUtil.getRole(refreshToken);
 
-        String newAccessToken = jwtUtil.createAccessToken(email, role);
-        String newRefreshToken = jwtUtil.createRefreshToken(email, role);
+        String newAccessToken = jwtUtil.createAccessToken(userId, email, role);
+        String newRefreshToken = jwtUtil.createRefreshToken(userId, email, role);
 
         refreshTokenRepository.deleteById(refreshToken);
 
-        JWTUserDTO newJWTUserDTO = JWTUserDTO.builder()
-                .refreshToken(newRefreshToken)
-                .role(role.toString())
-                .email(email)
-                .build();
-
-        refreshTokenRepository.save(newJWTUserDTO);
-
         response.addHeader("Authorization", "Bearer " + newAccessToken);
-        response.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshTokenCookie(email, refreshToken, role).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshTokenCookie(newRefreshToken, userId, email, role).toString());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

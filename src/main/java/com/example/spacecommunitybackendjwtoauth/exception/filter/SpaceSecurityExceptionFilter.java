@@ -1,6 +1,8 @@
 package com.example.spacecommunitybackendjwtoauth.exception.filter;
 
 import com.example.spacecommunitybackendjwtoauth.exception.ErrorResponse;
+import com.example.spacecommunitybackendjwtoauth.exception.SpaceCommunityAuthException;
+import com.example.spacecommunitybackendjwtoauth.exception.SpaceCommunityRouteException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+// Space 관련 인증 오류 필터
 @RequiredArgsConstructor
 public class SpaceSecurityExceptionFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
@@ -27,6 +30,9 @@ public class SpaceSecurityExceptionFilter extends OncePerRequestFilter {
         catch(SpaceCommunityAuthException se) {
             handleSpaceSecurityException(response, se);
         }
+        catch(SpaceCommunityRouteException sre) {
+            handleSpaceRouteException(response, sre);
+        }
     }
 
     private void handleSpaceSecurityException(HttpServletResponse response, SpaceCommunityAuthException e) throws IOException {
@@ -35,6 +41,16 @@ public class SpaceSecurityExceptionFilter extends OncePerRequestFilter {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
         ErrorResponse errorResponse = ErrorResponse.from(e.getHttpStatus().value(), e.getErrorCode(), e.getMessage());
+
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+    }
+
+    private void handleSpaceRouteException(HttpServletResponse response, SpaceCommunityRouteException re) throws IOException {
+        response.setStatus(re.getHttpStatus().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        ErrorResponse errorResponse = ErrorResponse.from(re.getHttpStatus().value(), re.getHttpStatus().name(), re.getMessage());
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }

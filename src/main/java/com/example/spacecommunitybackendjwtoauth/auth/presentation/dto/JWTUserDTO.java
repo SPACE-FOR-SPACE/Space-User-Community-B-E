@@ -7,7 +7,10 @@ import org.springframework.data.redis.core.RedisHash;
 @RedisHash(value = "JWTUserRequest", timeToLive = 1209600)
 @Builder
 @Getter
+// RefreshToken Entity
 public class JWTUserDTO {
+
+    private Long userId;
 
     private String email;
 

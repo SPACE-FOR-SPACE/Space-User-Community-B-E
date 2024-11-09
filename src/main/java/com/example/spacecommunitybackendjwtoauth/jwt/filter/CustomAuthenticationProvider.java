@@ -1,15 +1,18 @@
 package com.example.spacecommunitybackendjwtoauth.jwt.filter;
 
-import com.example.spacecommunitybackendjwtoauth.auth.service.dto.CustomUserDetails;
+import com.example.spacecommunitybackendjwtoauth.auth.presentation.dto.CustomUserDetails;
 import com.example.spacecommunitybackendjwtoauth.auth.service.CustomUserDetailsService;
-import com.example.spacecommunitybackendjwtoauth.user.exceptions.UserNotFoundException;
+import com.example.spacecommunitybackendjwtoauth.user.exception.UserLoginException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+// 인증 로직 구현
+@Component
 @RequiredArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
@@ -25,10 +28,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(email);
 
         if(!passwordEncoder.matches(password, customUserDetails.getPassword())) {
-            throw new UserNotFoundException();
+            throw new UserLoginException();
         }
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, password, customUserDetails.getAuthorities());
+
     }
 
     @Override

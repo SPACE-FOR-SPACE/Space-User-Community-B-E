@@ -1,9 +1,10 @@
 package com.example.spacecommunitybackendjwtoauth.jwt.filter;
 
-import com.example.spacecommunitybackendjwtoauth.jwt.record.LoginRequestRecord;
+import com.example.spacecommunitybackendjwtoauth.jwt.record.LoginUserDTO;
 import com.example.spacecommunitybackendjwtoauth.jwt.util.JWTUtil;
 import com.example.spacecommunitybackendjwtoauth.user.Role;
-import com.example.spacecommunitybackendjwtoauth.auth.service.dto.CustomUserDetails;
+import com.example.spacecommunitybackendjwtoauth.auth.presentation.dto.CustomUserDetails;
+import com.example.spacecommunitybackendjwtoauth.jwt.exception.InvalidMethodException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 
+// CustomLoginFiler
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
@@ -32,10 +34,15 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         try {
-            LoginRequestRecord loginRequest = objectMapper.readValue(req.getInputStream(), LoginRequestRecord.class);
+            if(!req.getMethod().equals("POST")) throw new InvalidMethodException();
+            LoginUserDTO loginRequest = objectMapper.readValue(req.getInputStream(), LoginUserDTO.class);
 
             String email = loginRequest.email();
             String password = loginRequest.password();
+
+            System.out.println("email, password" + email + password);
+
+            if(email == null || password == null) throw new IllegalArgumentException();
 
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
 
@@ -52,12 +59,13 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String email = customUserDetails.getEmail();
         Role role = customUserDetails.getRole();
+        Long userId = customUserDetails.getUserId();
 
-        String accessToken = jwtUtil.createAccessToken(email, role);
-        String refreshToken = jwtUtil.createRefreshToken(email, role);
+        String accessToken = jwtUtil.createAccessToken(userId, email, role);
+        String refreshToken = jwtUtil.createRefreshToken(userId, email, role);
 
         res.addHeader("Authorization", "Bearer " + accessToken);
-        res.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshTokenCookie(email, refreshToken, role).toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshTokenCookie(refreshToken, userId, email, role).toString());
         res.setStatus(200);
     }
 

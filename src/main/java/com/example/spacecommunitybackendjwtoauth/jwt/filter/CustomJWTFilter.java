@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,6 +23,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+// JWTFilter 권한 부여 Filter
+@Slf4j
 @RequiredArgsConstructor
 public class CustomJWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
@@ -29,9 +32,14 @@ public class CustomJWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse res, @NonNull FilterChain chain) throws ServletException, IOException {
+
         String requestURI = req.getRequestURI();
+
+
         if(requestURI.equals("/user/login")) {
-            if(jwtUtil.getAccessTokenFromHeaders(req) != null) {
+            String accessToken = jwtUtil.getAccessTokenFromHeaders(req);
+            String refreshToken = jwtUtil.getRefreshTokenFromCookies(req);
+            if(jwtUtil.jwtVerify(accessToken, "access") || jwtUtil.jwtVerify(refreshToken, "refresh")) {
                 throw new DuplicateLoginException();
             }
             chain.doFilter(req, res);
@@ -45,10 +53,9 @@ public class CustomJWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        if(!jwtUtil.isExpired(accessToken)) {
-            chain.doFilter(req, res);
-            return;
-        }
+        accessToken = accessToken.replaceFirst("Bearer ", "");
+
+        jwtUtil.isExpired(accessToken);
 
         String category = jwtUtil.getCategory(accessToken);
 
@@ -56,12 +63,12 @@ public class CustomJWTFilter extends OncePerRequestFilter {
             throw new InvalidTokenException();
         }
 
-        String email = jwtUtil.getEmail(accessToken);
+        Long userId = jwtUtil.getUserId(accessToken);
         Role role = jwtUtil.getRole(accessToken);
 
         GrantedAuthority authority = new SimpleGrantedAuthority(role.getValue());
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(authority));
+        Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, Collections.singletonList(authority));
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

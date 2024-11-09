@@ -1,12 +1,17 @@
 package com.example.spacecommunitybackendjwtoauth.exception;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+// Space Runtime Exception
 @Getter
-@RequiredArgsConstructor
 public class SpaceCommunityRunTimeException extends RuntimeException {
     private final HttpStatus status;
-    private final String message;
+    private final String errorMessage;
+
+    public SpaceCommunityRunTimeException(HttpStatus status, String errorMessage) {
+        super(errorMessage);
+        this.status = status;
+        this.errorMessage = errorMessage;
+    }
 }

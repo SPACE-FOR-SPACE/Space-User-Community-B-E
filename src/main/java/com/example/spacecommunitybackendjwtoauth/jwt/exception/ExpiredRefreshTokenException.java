@@ -1,6 +1,6 @@
 package com.example.spacecommunitybackendjwtoauth.jwt.exception;
 
-import com.example.spacecommunitybackendjwtoauth.exception.filter.SpaceCommunityAuthException;
+import com.example.spacecommunitybackendjwtoauth.exception.SpaceCommunityAuthException;
 import org.springframework.http.HttpStatus;
 
 public class ExpiredRefreshTokenException extends SpaceCommunityAuthException {

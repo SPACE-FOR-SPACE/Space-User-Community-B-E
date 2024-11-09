@@ -1,6 +1,7 @@
 package com.example.spacecommunitybackendjwtoauth.jwt.filter;
 
 import com.example.spacecommunitybackendjwtoauth.auth.presentation.repository.RefreshTokenRepository;
+import com.example.spacecommunitybackendjwtoauth.jwt.exception.AnonymousException;
 import com.example.spacecommunitybackendjwtoauth.jwt.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
+// CustomLogoutFilter
 @RequiredArgsConstructor
 public class CustomLogoutFilter extends GenericFilterBean {
 
@@ -28,25 +30,22 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String requestURI = request.getRequestURI();
-        if(!requestURI.equals("/user/logout") || !request.getMethod().equals("POST")){
+        if(!requestURI.equals("/user/logout") || !request.getMethod().equals("GET")){
             filterChain.doFilter(request, response);
             return;
         }
 
         String refreshTokenJWT = jwtUtil.getRefreshTokenFromCookies(request);
 
-        if(refreshTokenJWT == null){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+        if(refreshTokenJWT == null) {
+            throw new AnonymousException();
         }
+
         LogoutProcess(refreshTokenJWT, response);
     }
 
     private void LogoutProcess(String refreshToken, HttpServletResponse response) {
-        if(jwtUtil.isExpired(refreshToken)){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        jwtUtil.isExpired(refreshToken);
 
         if(!jwtUtil.getCategory(refreshToken).equals("refresh")){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -60,8 +59,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         refreshTokenRepository.deleteById(refreshToken);
 
-
-        response.addHeader("Authorization", "Bearer " + "null");
+        response.addHeader("Authorization", "Bearer ");
 
         ResponseCookie invalidRefreshCookie = jwtUtil.invalidRefreshCookie("refresh");
         response.addHeader(HttpHeaders.SET_COOKIE, invalidRefreshCookie.toString());

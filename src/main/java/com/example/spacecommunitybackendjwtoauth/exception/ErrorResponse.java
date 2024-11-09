@@ -2,6 +2,7 @@ package com.example.spacecommunitybackendjwtoauth.exception;
 
 import java.time.LocalDateTime;
 
+// 오류 Record
 public record ErrorResponse(
         int status,
         String errorCode,

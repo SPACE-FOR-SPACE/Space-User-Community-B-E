@@ -3,36 +3,46 @@ spring:
     name:
       SpaceCommunityBackendJWTOAuth
   jpa:
-    properties:
-      hibernate:
-        show_sql:
-          true
-        ddl-auto:
-          update
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   jwt:
     access:
       expiration:
-        0
+        900000
     refresh:
       expiration:
-        0
+        20160000
     secret:
-      afsdjn
+      bla
   datasource:
     driver-class-name:
-      aldm
+      com.mysql.cj.jdbc.Driver
     url:
-      dkmad
+      jdbc:mysql://localhost:3306/SpaceBackendDB
     username:
-      niga
+      root
     password:
-      mm
+      ohi
   data:
     redis:
       host:
-        halo
+        localhost
       port:
-        1111
-
-debug:
-  true
+        6379
+  cloud:
+    aws:
+      stack:
+        auto:
+          false
+      credentials:
+        access-key:
+          ac
+        secret-key:
+          sc
+      s3:
+        bukkit:
+          spacecommunityimage
+      region:
+        static:
+          us-west-1

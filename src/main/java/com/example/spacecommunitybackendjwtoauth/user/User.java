@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+// User Entity
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,28 +35,25 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    private String profile;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Builder(builderMethodName = "JWTRegisterBuilder")
+    @Builder(builderMethodName = "UserRegisterBuilder")
     public User(String username, String email, String password, Integer age, Role role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.age = age;
         this.role = role;
+        this.profile = null;
     }
 
-    @Builder(builderMethodName = "OAuthRegisterBuilder")
-    public User(String email, Role role) {
-        this.email = email;
-        this.role = role;
-    }
-
-    @Builder(builderMethodName = "JWTLoginBuilder")
-    public User(String email, String password, Role role) {
-        this.email = email;
+    @Builder(builderMethodName = "UserUpdateBuilder")
+    public User(String username, String password, String profile) {
+        this.username = username;
         this.password = password;
-        this.role = role;
+        this.profile = profile;
     }
 }

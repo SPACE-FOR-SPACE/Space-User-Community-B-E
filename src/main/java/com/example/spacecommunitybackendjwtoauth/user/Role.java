@@ -3,6 +3,7 @@ package com.example.spacecommunitybackendjwtoauth.user;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+// Role
 @Getter
 @AllArgsConstructor
 public enum Role {

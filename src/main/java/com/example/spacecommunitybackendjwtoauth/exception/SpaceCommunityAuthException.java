@@ -1,9 +1,10 @@
-package com.example.spacecommunitybackendjwtoauth.exception.filter;
+package com.example.spacecommunitybackendjwtoauth.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 
+// Space Auth Exception
 @Getter
 public class SpaceCommunityAuthException extends AuthenticationException {
     private final HttpStatus httpStatus;
