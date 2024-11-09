@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,8 +21,11 @@ public class DocumentEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @JoinColumn(name = "userId")
+  @Column(name = "userId")
   private Long userId;
+
+  @OneToMany(mappedBy = "document", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  private List<CommentEntity> comments;
 
   @Column(nullable = false)
   private String title;

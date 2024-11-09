@@ -10,6 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
 
 @EnableWebSecurity
 @Configuration
@@ -29,10 +32,10 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/user/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/profile/{user}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/community/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/community/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/community/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/community/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

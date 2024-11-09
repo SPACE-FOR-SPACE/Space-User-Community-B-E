@@ -20,6 +20,6 @@ public class LikesDocumentEntity {
   @Column
   private Long userId;
 
-  @Column
+  @Column 
   private Long documentId;
 }

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,8 +24,11 @@ public class CommentEntity {
   private Long userId;
 
   @ManyToOne
-  @JoinColumn(name = "documentId")
+  @JoinColumn(name = "document_id")
   private DocumentEntity document;
+
+  @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
+  private List<RecommentEntity> recomment;
 
   @Column(nullable = false)
   private String content;

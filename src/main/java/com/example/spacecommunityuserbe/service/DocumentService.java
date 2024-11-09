@@ -3,6 +3,7 @@ package com.example.spacecommunityuserbe.service;
 import com.example.spacecommunityuserbe.controller.BaseApiResponse;
 import com.example.spacecommunityuserbe.dto.DocumentDTO;
 import com.example.spacecommunityuserbe.dto.LikesDocumentDTO;
+import com.example.spacecommunityuserbe.entity.DocumentEntity;
 import com.example.spacecommunityuserbe.mapper.DocumentMapper;
 import com.example.spacecommunityuserbe.mapper.LikesDocumentMapper;
 import com.example.spacecommunityuserbe.repository.DocumentRepository;
@@ -10,6 +11,8 @@ import com.example.spacecommunityuserbe.repository.LikesDocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class DocumentService {
@@ -28,6 +31,8 @@ public class DocumentService {
   // Document Create
   @Transactional
   public BaseApiResponse createDocument(DocumentDTO documentDTO) {
+    System.out.println(documentDTO.toString());
+    System.out.println(documentMapper.toDocumentEntity(documentDTO).toString());
     try {
       documentRepository.save(documentMapper.toDocumentEntity(documentDTO));
       return new BaseApiResponse(201, "Successfully created");
@@ -37,16 +42,18 @@ public class DocumentService {
   }
 
   // Document Read
-  @Transactional
+//  @Transactional
   public BaseApiResponse readDocument(Long id) {
     try {
-      DocumentDTO document = documentRepository.findDocumentDTOById(id);
+      DocumentEntity documentEntity = documentRepository.findById(id).orElse(null);
+      DocumentDTO document = documentMapper.toDocumentDTO(documentEntity);
+      System.out.println(documentEntity.getComments());
       if (document == null) {
         return new BaseApiResponse(404, "Document not found");
       }
       return new BaseApiResponse<>(200, "Successfully read", document);
     } catch (Exception e) {
-      return new BaseApiResponse(400, "Invalid input");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 
@@ -55,8 +62,11 @@ public class DocumentService {
   public BaseApiResponse updateDocument(Long id, DocumentDTO documentDTO) {
     try {
       if(documentRepository.existsById(id)) {
-        DocumentDTO document = documentRepository.findDocumentDTOById(id);
-        DocumentDTO updatedDocument = new DocumentDTO(document.id(), document.userId(), documentDTO.title(), documentDTO.content(), documentDTO.icon(), documentDTO.category(), document.likes(), document.createdAt());
+        DocumentEntity document = documentRepository.findById(id).orElse(null);
+        if(document == null) {
+          return new BaseApiResponse(404, "Document not found");
+        }
+        DocumentDTO updatedDocument = new DocumentDTO(document.getId(), document.getUserId(), documentDTO.comments(), documentDTO.title(), documentDTO.content(), documentDTO.icon(), documentDTO.category(), document.getLikes(), document.getCreatedAt());
         documentRepository.save(documentMapper.toDocumentEntity(updatedDocument));
         return new BaseApiResponse(200, "Successfully updated");
       } else {
@@ -69,9 +79,10 @@ public class DocumentService {
 
   // Document Delete
   @Transactional
-  public BaseApiResponse deleteDocument(Long id, Long userId) {
+  public BaseApiResponse deleteDocument(Long id) {
     try {
-      if(documentRepository.findDocumentDTOById(id).userId().equals(userId)) {
+      DocumentEntity documentEntity = documentRepository.findById(id).orElse(null);
+      if(documentEntity != null) {
         documentRepository.deleteById(id);
         return new BaseApiResponse(200, "Successfully deleted");
       } else {
@@ -92,12 +103,12 @@ public class DocumentService {
       if (likesDocumentRepository.existsByDocumentIdAndUserId(likesDocumentDTO.documentId(), likesDocumentDTO.userId())) {
         likesDocumentRepository.deleteByDocumentIdAndUserId(likesDocumentDTO.documentId(), likesDocumentDTO.userId());
         DocumentDTO document = documentRepository.findDocumentDTOById(likesDocumentDTO.documentId());
-        DocumentDTO updatedDocument = new DocumentDTO(document.id(), document.userId(), document.title(), document.content(), document.icon(), document.category(), document.likes() - 1, document.createdAt());
+        DocumentDTO updatedDocument = new DocumentDTO(document.id(), document.userId(), document.comments(), document.title(), document.content(), document.icon(), document.category(), document.likes() - 1, document.createdAt());
         documentRepository.save(documentMapper.toDocumentEntity(updatedDocument));
       }
       else {
         DocumentDTO document = documentRepository.findDocumentDTOById(likesDocumentDTO.documentId());
-        DocumentDTO updatedDocument = new DocumentDTO(document.id(), document.userId(), document.title(), document.content(), document.icon(), document.category(), document.likes() + 1, document.createdAt());
+        DocumentDTO updatedDocument = new DocumentDTO(document.id(), document.userId(), document.comments(), document.title(), document.content(), document.icon(), document.category(), document.likes() + 1, document.createdAt());
         documentRepository.save(documentMapper.toDocumentEntity(updatedDocument));
         likesDocumentRepository.save(likesDocumentMapper.toLikesDocumentEntity(likesDocumentDTO));
       }
@@ -106,4 +117,16 @@ public class DocumentService {
       return new BaseApiResponse(500, e.getMessage());
     }
   }
+
+  // Document Search
+  @Transactional
+  public BaseApiResponse searchDocument(String title) {
+    try {
+      List<DocumentDTO> documentDTOList = documentMapper.toDocumentDTOList(documentRepository.findAllByTitleContaining(title));
+      return new BaseApiResponse(200, "Successfully searched", documentDTOList);
+    } catch (Exception e) {
+      return new BaseApiResponse(500, e.getMessage());
+    }
+  }
+
 }

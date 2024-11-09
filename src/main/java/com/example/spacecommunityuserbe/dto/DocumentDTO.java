@@ -4,6 +4,8 @@ import com.example.spacecommunityuserbe.entity.DocumentIcon;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public record DocumentDTO(
         @Schema(description = "문서 id(자동생성)", example = "10")
@@ -11,6 +13,9 @@ public record DocumentDTO(
 
         @Schema(description = "유저 id", example = "123")
         Long userId,
+
+        @Schema(description = "댓글 목록")
+        List<CommentDTO> comments,
 
         @Schema(description = "문서 제목", example = "title")
         String title,
@@ -33,6 +38,10 @@ public record DocumentDTO(
   public DocumentDTO {
     if (likes == null) {
       likes = 0L;
+    }
+    createdAt = LocalDateTime.now();
+    if (comments == null) {
+      comments = new ArrayList<>();
     }
   }
 }

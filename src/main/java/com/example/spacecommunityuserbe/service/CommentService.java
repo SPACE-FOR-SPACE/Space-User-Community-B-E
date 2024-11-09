@@ -2,6 +2,7 @@ package com.example.spacecommunityuserbe.service;
 
 import com.example.spacecommunityuserbe.controller.BaseApiResponse;
 import com.example.spacecommunityuserbe.dto.CommentDTO;
+import com.example.spacecommunityuserbe.entity.CommentEntity;
 import com.example.spacecommunityuserbe.entity.DocumentEntity;
 import com.example.spacecommunityuserbe.mapper.CommentMapper;
 import com.example.spacecommunityuserbe.repository.CommentRepository;
@@ -30,13 +31,13 @@ public class CommentService {
   public BaseApiResponse createComment(CommentDTO commentDTO, Long documentId) {
     try {
       DocumentEntity document = documentRepository.findById(documentId).orElse(null);
-      if(document == null) {
+      if (document == null) {
         return new BaseApiResponse(404, "Document not found");
       }
-      commentRepository.save(commentMapper.toCommentsEntity(commentDTO, document));
+      commentRepository.save(commentMapper.toCommentEntity(commentDTO, document));
       return new BaseApiResponse(200, "Successfully Created");
     } catch (Exception e) {
-      return new BaseApiResponse(500, "Error Occurred");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 
@@ -45,35 +46,35 @@ public class CommentService {
   @Transactional
   public BaseApiResponse readComment(Long documentId) {
     try {
-      List<CommentDTO> comments = commentRepository.findCommentsDTOByDocumentId(documentId);
-      if(comments == null) {
+      List<CommentDTO> comments = commentMapper.toCommentDTOList(commentRepository.findCommentEntitiesByDocumentId(documentId));
+
+      if (comments == null) {
         return new BaseApiResponse(404, "Comment Not Found");
       }
       return new BaseApiResponse<>(200, "Successfully Read", comments);
     } catch (Exception e) {
-      return new BaseApiResponse(500, "Error Occurred");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
-
 
   // Update Comment
   @Transactional
   public BaseApiResponse updateComment(CommentDTO commentDTO, Long documentId, Long commentId) {
     try {
-      CommentDTO comment = commentRepository.findCommentsDTOByIdAndDocumentId(commentId, documentId);
+      CommentDTO comment = commentMapper.toCommentDTO(commentRepository.findByIdAndDocumentId(commentId, documentId));
       if(comment == null) {
         return new BaseApiResponse(404, "Comment Not Found");
       }
       // 본인이 작성한 댓글만 수정할 수 있도록 수정 필요
-      CommentDTO updated_comment = new CommentDTO(commentId, comment.userId(), comment.documentId(), commentDTO.content(), comment.createdAt());
-      DocumentEntity document = documentRepository.findById(comment.documentId()).orElse(null);
+      CommentDTO updated_comment = new CommentDTO(commentId, comment.userId(), comment.recomments(), commentDTO.content(), comment.createdAt());
+      DocumentEntity document = documentRepository.findById(documentId).orElse(null);
       if(document == null) {
         return new BaseApiResponse(404, "Document not found");
       }
-      commentRepository.save(commentMapper.toCommentsEntity(updated_comment, document));
+      commentRepository.save(commentMapper.toCommentEntity(updated_comment, document));
       return new BaseApiResponse(200, "Successfully Updated");
     } catch (Exception e) {
-      return new BaseApiResponse(500, "Error Occurred");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 

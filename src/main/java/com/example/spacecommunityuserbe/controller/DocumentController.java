@@ -98,9 +98,9 @@ public class DocumentController {
           }
   )
   @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping("/community/doc/{id}/{userId}") // UserId는 임시임
-  public BaseApiResponse delete(@PathVariable Long id, @PathVariable Long userId) {
-    return documentService.deleteDocument(id, userId);
+  @DeleteMapping("/community/doc/{id}") // UserId는 임시임
+  public BaseApiResponse delete(@PathVariable Long id) {
+    return documentService.deleteDocument(id);
   }
 
 
@@ -122,5 +122,23 @@ public class DocumentController {
   @PostMapping("/community/doc/like")
   public BaseApiResponse like(@RequestBody LikesDocumentDTO likesDocumentDTO) {
     return documentService.like(likesDocumentDTO);
+  }
+
+  // Document Search
+  @Operation(
+          summary = "문서 검색",
+          description = "문서를 검색합니다.",
+          parameters = {
+                  @Parameter(name = "title", description = "문서 제목", required = true)
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully read"),
+                  @ApiResponse(responseCode = "404", description = "Document not found"),
+          }
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/search/doc/{title}")
+  public Object search(@PathVariable String title) {
+    return documentService.searchDocument(title);
   }
 }
