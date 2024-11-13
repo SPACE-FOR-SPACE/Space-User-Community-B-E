@@ -5,12 +5,15 @@ import com.example.spacecommunityuserbe.dto.LikesDocumentDTO;
 import com.example.spacecommunityuserbe.service.DocumentService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
+@CrossOrigin(origins = "http://10.150.149.140:3000")
 @RestController
 public class DocumentController {
   private final DocumentService documentService;
@@ -26,11 +29,17 @@ public class DocumentController {
           requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                   description = "문서 정보",
                   required = true,
-                  content = @Content(schema = @Schema(implementation = DocumentDTO.class))
+                  content = @Content(examples = @ExampleObject(value = "{\n\"userId\": 123,\n\"title\": \"Hello World\",\n\"content\": \"Hello Sekai\",\n\"category\": \"Asks\",\n\"icon\":\"ICON1\"\n}"))
           ),
           responses = {
-                  @ApiResponse(responseCode = "201", description = "Successfully Created"),
-                  @ApiResponse(responseCode = "400", description = "Invalid input")
+                  @ApiResponse(responseCode = "201", description = "Successfully Created", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully Created\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
           }
   )
   @ResponseStatus(HttpStatus.CREATED)
@@ -48,8 +57,26 @@ public class DocumentController {
                   @Parameter(name = "id", description = "문서 아이디", required = true)
           },
           responses = {
-                  @ApiResponse(responseCode = "200", description = "Successfully read"),
-                  @ApiResponse(responseCode = "404", description = "Document not found"),
+                  @ApiResponse(responseCode = "200", description = "Successfully read", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Successfully read\",\n\"data\": {\n\"id\": 13, \"userId\": 1234,\n" +
+                                  "        \"comments\": [],\n" +
+                                  "        \"title\": \"title\",\n" +
+                                  "        \"content\": \"content\",\n" +
+                                  "        \"icon\": \"ICON1\",\n" +
+                                  "        \"category\": \"1\",\n" +
+                                  "        \"likes\": 0,\n" +
+                                  "        \"createdAt\": \"2024-11-11T21:22:36.735233\"" +
+                                  "\n}\n}")
+                  )),
+                  @ApiResponse(responseCode = "404", description = "Document not found", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 404,\n\"message\": \"Document not found\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
           }
   )
   @ResponseStatus(HttpStatus.OK)
@@ -69,12 +96,27 @@ public class DocumentController {
           requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                   description = "수정된 문서 정보",
                   required = true,
-                  content = @Content(schema = @Schema(implementation = DocumentDTO.class))
+                  content = @Content(
+                          examples = @ExampleObject(value = "{    " +
+                                  "    \"title\":\"title\",\n" +
+                                  "    \"content\":\"content\",\n" +
+                                  "    \"category\":\"1\",\n" +
+                                  "    \"icon\":\"ICON1\"}")
+                  )
           ),
           responses = {
-                  @ApiResponse(responseCode = "200", description = "Successfully updated"),
-                  @ApiResponse(responseCode = "404", description = "Document not found"),
-                  @ApiResponse(responseCode = "400", description = "Invalid input")
+                  @ApiResponse(responseCode = "200", description = "Successfully read", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully read\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "404", description = "Document not found", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 404,\n\"message\": \"Document not found\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
           }
   )
   @ResponseStatus(HttpStatus.OK)
@@ -92,9 +134,18 @@ public class DocumentController {
                   @Parameter(name = "id", description = "문서 아이디", required = true)
           },
           responses = {
-                  @ApiResponse(responseCode = "200", description = "Successfully deleted"),
-                  @ApiResponse(responseCode = "404", description = "Document not found"),
-                  @ApiResponse(responseCode = "403", description = "Unauthorized access")
+                  @ApiResponse(responseCode = "200", description = "Successfully deleted", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully deleted\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "404", description = "Document not found", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 404,\n\"message\": \"Document not found\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
           }
   )
   @ResponseStatus(HttpStatus.OK)
@@ -114,8 +165,19 @@ public class DocumentController {
                   content = @Content(schema = @Schema(implementation = LikesDocumentDTO.class))
           ),
           responses = {
-                  @ApiResponse(responseCode = "200", description = "Successfully added/removed likes"),
-                  @ApiResponse(responseCode = "404", description = "Document not found")
+                  @ApiResponse(responseCode = "200", description = "Successfully liked", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully liked\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "404", description = "Document not found", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 404,\n\"message\": \"Document not found\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
+
           }
   )
   @ResponseStatus(HttpStatus.OK)
@@ -132,13 +194,67 @@ public class DocumentController {
                   @Parameter(name = "title", description = "문서 제목", required = true)
           },
           responses = {
-                  @ApiResponse(responseCode = "200", description = "Successfully read"),
-                  @ApiResponse(responseCode = "404", description = "Document not found"),
+                  @ApiResponse(responseCode = "200", description = "Successfully searched", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully searched\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
           }
   )
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/search/doc/{title}")
-  public Object search(@PathVariable String title) {
+  public BaseApiResponse search(@PathVariable String title) {
     return documentService.searchDocument(title);
+  }
+
+  // Get Document List
+  @Operation(
+          summary = "문서 리스트 받아오기",
+          description = "문서를 받아옵니다.",
+          parameters = {
+                  @Parameter(name = "orderBy", description = "createdAt or likes", required = true)
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully got", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully got\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
+          }
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/community/doclist")
+  public BaseApiResponse getDocumentList(String orderby) {
+    return documentService.getDocumentList(orderby);
+  }
+
+  // Get Document List By User Id
+  @Operation(
+          summary = "문서 리스트 유저 아이디별로 받아오기",
+          description = "문서를 유저 아이디별로 받아옵니다.",
+          parameters = {
+                  @Parameter(name = "userId", description = "Int", required = true)
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully got", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 200,\n\"message\": \"Successfully got\",\n\"data\": null\n}")
+                  )),
+                  @ApiResponse(responseCode = "500", description = "Error Message", content = @Content(
+                          mediaType = MediaType.APPLICATION_JSON_VALUE,
+                          examples = @ExampleObject(value = "{\"status\": 500,\n\"message\": \"Error Message\",\n\"data\": null\n}")
+                  ))
+          }
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/community/doclist/{id}")
+  public BaseApiResponse getDocumentListByUserId(@PathVariable(required = true) Long id) {
+    return documentService.getDocumentListByUserId(id);
   }
 }

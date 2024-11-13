@@ -28,6 +28,7 @@ public class DocumentService {
     this.likesDocumentRepository = likesDocumentRepository;
     this.likesDocumentMapper = likesDocumentMapper;
   }
+
   // Document Create
   @Transactional
   public BaseApiResponse createDocument(DocumentDTO documentDTO) {
@@ -37,12 +38,12 @@ public class DocumentService {
       documentRepository.save(documentMapper.toDocumentEntity(documentDTO));
       return new BaseApiResponse(201, "Successfully created");
     } catch (Exception e) {
-      return new BaseApiResponse(400, "Invalid input");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 
   // Document Read
-//  @Transactional
+  @Transactional
   public BaseApiResponse readDocument(Long id) {
     try {
       DocumentEntity documentEntity = documentRepository.findById(id).orElse(null);
@@ -63,9 +64,6 @@ public class DocumentService {
     try {
       if(documentRepository.existsById(id)) {
         DocumentEntity document = documentRepository.findById(id).orElse(null);
-        if(document == null) {
-          return new BaseApiResponse(404, "Document not found");
-        }
         DocumentDTO updatedDocument = new DocumentDTO(document.getId(), document.getUserId(), documentDTO.comments(), documentDTO.title(), documentDTO.content(), documentDTO.icon(), documentDTO.category(), document.getLikes(), document.getCreatedAt());
         documentRepository.save(documentMapper.toDocumentEntity(updatedDocument));
         return new BaseApiResponse(200, "Successfully updated");
@@ -73,7 +71,7 @@ public class DocumentService {
         return new BaseApiResponse(404, "Document not found");
       }
     } catch (Exception e) {
-      return new BaseApiResponse(400, "Invalid input");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 
@@ -89,7 +87,7 @@ public class DocumentService {
         return new BaseApiResponse(404, "Document not found");
       }
     } catch (Exception e) {
-      return new BaseApiResponse(403, "Unauthorized access");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 
@@ -124,6 +122,31 @@ public class DocumentService {
     try {
       List<DocumentDTO> documentDTOList = documentMapper.toDocumentDTOList(documentRepository.findAllByTitleContaining(title));
       return new BaseApiResponse(200, "Successfully searched", documentDTOList);
+    } catch (Exception e) {
+      return new BaseApiResponse(500, e.getMessage());
+    }
+  }
+
+  // Document List
+  public BaseApiResponse getDocumentList(String orderBy) {
+    try {
+      List<DocumentDTO> documentDTOList;
+      if(orderBy == "createdAt") {
+        documentDTOList = documentMapper.toDocumentDTOList(documentRepository.findAllByOrderByCreatedAtAsc());
+      } else {
+        documentDTOList = documentMapper.toDocumentDTOList(documentRepository.findAllByOrderByLikesDesc());
+      }
+      return new BaseApiResponse(200, "Successfully got", documentDTOList);
+    } catch (Exception e) {
+      return new BaseApiResponse(500, e.getMessage());
+    }
+  }
+
+  // Document List By UserId
+  public BaseApiResponse getDocumentListByUserId(Long userId) {
+    try {
+      List<DocumentDTO> documentDTOList = documentMapper.toDocumentDTOList(documentRepository.findAllByUserIdOrderByCreatedAtAsc(userId));
+      return new BaseApiResponse(200, "Successfully got", documentDTOList);
     } catch (Exception e) {
       return new BaseApiResponse(500, e.getMessage());
     }

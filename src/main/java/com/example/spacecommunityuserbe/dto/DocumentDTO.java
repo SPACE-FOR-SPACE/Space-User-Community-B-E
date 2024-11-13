@@ -39,7 +39,9 @@ public record DocumentDTO(
     if (likes == null) {
       likes = 0L;
     }
-    createdAt = LocalDateTime.now();
+    if (createdAt == null) {
+      createdAt = LocalDateTime.now();
+    }
     if (comments == null) {
       comments = new ArrayList<>();
     }

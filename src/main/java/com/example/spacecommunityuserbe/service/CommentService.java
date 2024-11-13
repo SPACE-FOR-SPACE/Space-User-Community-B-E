@@ -51,7 +51,7 @@ public class CommentService {
       if (comments == null) {
         return new BaseApiResponse(404, "Comment Not Found");
       }
-      return new BaseApiResponse<>(200, "Successfully Read", comments);
+      return new BaseApiResponse(200, "Successfully Read", comments);
     } catch (Exception e) {
       return new BaseApiResponse(500, e.getMessage());
     }
@@ -63,7 +63,7 @@ public class CommentService {
     try {
       CommentDTO comment = commentMapper.toCommentDTO(commentRepository.findByIdAndDocumentId(commentId, documentId));
       if(comment == null) {
-        return new BaseApiResponse(404, "Comment Not Found");
+        return new BaseApiResponse(404, "Comment not found");
       }
       // 본인이 작성한 댓글만 수정할 수 있도록 수정 필요
       CommentDTO updated_comment = new CommentDTO(commentId, comment.userId(), comment.recomments(), commentDTO.content(), comment.createdAt());
@@ -72,7 +72,7 @@ public class CommentService {
         return new BaseApiResponse(404, "Document not found");
       }
       commentRepository.save(commentMapper.toCommentEntity(updated_comment, document));
-      return new BaseApiResponse(200, "Successfully Updated");
+      return new BaseApiResponse(200, "Successfully updated");
     } catch (Exception e) {
       return new BaseApiResponse(500, e.getMessage());
     }

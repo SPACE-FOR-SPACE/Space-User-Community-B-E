@@ -27,6 +27,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors((cors) -> cors.configurationSource(request -> {
+                  CorsConfiguration config = new CorsConfiguration();
+                  config.setAllowedOrigins(Collections.singletonList("http://10.150.149.20:8080"));
+                  config.setAllowedMethods(Collections.singletonList("*"));
+                  config.setAllowCredentials(true);
+                  config.setAllowedHeaders(Collections.singletonList("*"));
+                  config.setMaxAge(3600L);
+                  return config;
+                }))
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/register").permitAll()

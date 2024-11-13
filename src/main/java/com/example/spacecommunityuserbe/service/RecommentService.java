@@ -73,7 +73,7 @@ public class RecommentService {
     try {
       RecommentDTO recomment = recommentRepository.findByDocumentIdAndCommentIdAndId(documentId, commentId, recommentId);
       if(recomment == null) {
-        return new BaseApiResponse(404, "Recomment Not Found");
+        return new BaseApiResponse(404, "Recomment not found");
       }
       // 본인이 작성한 대댓글만 수정할 수 있도록 수정 필요
       RecommentDTO updated_recomment = new RecommentDTO(commentId, recomment.userId(), recomment.commentId(), recommentDTO.content(), recomment.createdAt());
@@ -86,9 +86,9 @@ public class RecommentService {
         return new BaseApiResponse(404, "Comment not found");
       }
       recommentRepository.save(recommentMapper.toRecommentEntity(updated_recomment, document, comment));
-      return new BaseApiResponse(200, "Successfully Updated");
+      return new BaseApiResponse(200, "Successfully updated");
     } catch (Exception e) {
-      return new BaseApiResponse(500, "Error Occurred");
+      return new BaseApiResponse(500, e.getMessage());
     }
   }
 

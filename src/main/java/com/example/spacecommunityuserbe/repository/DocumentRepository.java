@@ -16,4 +16,7 @@ public interface DocumentRepository extends JpaRepository<DocumentEntity, Long> 
   DocumentEntity save(DocumentEntity documentEntity);
   DocumentDTO findDocumentDTOById(@Param("id") Long id);
   List<DocumentEntity> findAllByTitleContaining(@Param("title") String title);
+  List<DocumentEntity> findAllByOrderByCreatedAtAsc();
+  List<DocumentEntity> findAllByOrderByLikesDesc();
+  List<DocumentEntity> findAllByUserIdOrderByCreatedAtAsc(@Param("userId") Long userId);
 }
