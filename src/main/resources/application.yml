@@ -1,0 +1,56 @@
+spring:
+  config:
+    import:
+      - file:env/dev.env[.properties]
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+  application:
+    name: SpaceCommunityBackendJWTOAuth
+  jpa:  
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  jwt:
+    access:
+      expiration: 900000
+    refresh:
+      expiration: 1209600000
+    secret: ${JWT_SECRET_KEY}
+  datasource:
+    driver-class-name: ${MYSQL_DRIVER_NAME}
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  data:
+    redis:
+      host: localhost
+      port: 6380
+  cloud:
+    aws:
+      stack:
+        auto:
+          false
+      credentials:
+        access-key: ${S3_ACCESS_KEY}
+        secret-key: ${S3_SECRET_KEY}
+      s3:
+        bukkit: ${S3_BUKKIT}
+      region:
+        static: ${S3_REGION}
+mail:
+  smtp:
+    auth: true
+    starttls:
+      required: true
+      enable: true
+    socketFactory:
+      class: javax.net.ssl.SSLSocketFactory
+      fallback: false
+      port: 465
+    port: 587
+AdminMail:
+  id: ${EMAIL}
+  password: ${EMAIL_PASSWORD}
